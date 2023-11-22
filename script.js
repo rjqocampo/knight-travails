@@ -28,4 +28,13 @@
 
   */
 
+function createNode(value) {
+  const top = null;
+  const right = null;
+  const bottom = null;
+  const left = null;
+
+  return { value, top, right, bottom, left };
+}
+
 function knightMoves(start, end) {}
