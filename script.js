@@ -37,26 +37,54 @@ function createNode(name) {
   return { name, top, right, bottom, left };
 }
 
-function createBoard() {
-  /* 
-  Iterate
-  */
+function knightTravails() {
+  function createBoard() {
+    const column = [];
 
-  const column = [];
+    for (let i = 0; i < 8; i++) {
+      const row = [];
+      for (let j = 0; j < 8; j++) {
+        const name = `${j}, ${i}`;
 
-  for (let i = 0; i < 8; i++) {
-    const row = [];
-    for (let j = 0; j < 8; j++) {
-      const name = `${j}, ${i}`;
-
-      row.push(createNode(name));
+        row.push(createNode(name));
+      }
+      column.push(row);
     }
-    column.push(row);
+
+    return column;
   }
 
-  return column;
+  const board = createBoard();
+
+  function connectNodes() {
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (i !== 7) {
+          board[i][j].top = board[i + 1][j];
+        }
+
+        if (j !== 7) {
+          board[i][j].right = board[i][j + 1];
+        }
+
+        if (i !== 0) {
+          board[i][j].bottom = board[i - 1][j];
+        }
+
+        if (j !== 0) {
+          board[i][j].left = board[i][j - 1];
+        }
+      }
+    }
+
+    return board;
+  }
+
+  connectNodes();
+
+  function knightMoves(start, end) {}
+
+  return { createBoard, connectNodes };
 }
-
-function knightMoves(start, end) {}
-
-console.log(createBoard());
+const kt = knightTravails();
+console.log(kt.connectNodes());
