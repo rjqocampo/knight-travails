@@ -28,13 +28,35 @@
 
   */
 
-function createNode(value) {
+function createNode(name) {
   const top = null;
   const right = null;
   const bottom = null;
   const left = null;
 
-  return { value, top, right, bottom, left };
+  return { name, top, right, bottom, left };
+}
+
+function createBoard() {
+  /* 
+  Iterate
+  */
+
+  const column = [];
+
+  for (let i = 0; i < 8; i++) {
+    const row = [];
+    for (let j = 0; j < 8; j++) {
+      const name = `${j}, ${i}`;
+
+      row.push(createNode(name));
+    }
+    column.push(row);
+  }
+
+  return column;
 }
 
 function knightMoves(start, end) {}
+
+console.log(createBoard());
