@@ -28,13 +28,8 @@
 
   */
 
-function createNode(name) {
-  const top = null;
-  const right = null;
-  const bottom = null;
-  const left = null;
-
-  return { name, top, right, bottom, left };
+function createNode(name, parent, children) {
+  return { name, parent, children };
 }
 
 function knightTravails() {
@@ -45,7 +40,6 @@ function knightTravails() {
       const row = [];
       for (let j = 0; j < 8; j++) {
         const name = [j, i];
-
         row.push(createNode(name));
       }
       column.push(row);
@@ -56,122 +50,128 @@ function knightTravails() {
 
   const board = createBoard();
 
-  function connectNodes() {
-    for (let i = 0; i < 8; i++) {
-      for (let j = 0; j < 8; j++) {
-        if (i !== 7) {
-          board[i][j].top = board[i + 1][j];
-        }
-
-        if (j !== 7) {
-          board[i][j].right = board[i][j + 1];
-        }
-
-        if (i !== 0) {
-          board[i][j].bottom = board[i - 1][j];
-        }
-
-        if (j !== 0) {
-          board[i][j].left = board[i][j - 1];
-        }
-      }
-    }
-
-    return board;
-  }
-
-  connectNodes();
-
-  function getAvailMoves(node) {
+  function getChildren(node, visited, queue) {
     const array = [];
+    const [row, column] = node.name;
+    // console.log(row, column);
 
-    const nodeTTL = node?.top?.top?.left;
-    if (nodeTTL) array.push(nodeTTL);
+    const nodeTTL = board[column + 2]?.[row - 1];
+    if (nodeTTL) {
+      if (!nodeTTL.parent) nodeTTL.parent = node;
+      array.push(nodeTTL);
+    }
+    // console.log(nodeTTL);
 
-    const nodeTTR = node?.top?.top?.right;
-    if (nodeTTR) array.push(nodeTTR);
+    const nodeTTR = board[column + 2]?.[row + 1];
+    if (nodeTTR) {
+      if (!nodeTTR.parent) nodeTTR.parent = node;
+      array.push(nodeTTR);
+    }
+    // console.log(nodeTTR);
 
-    const nodeRRT = node?.right?.right?.top;
-    if (nodeRRT) array.push(nodeRRT);
+    const nodeRRT = board[column + 1]?.[row + 2];
+    if (nodeRRT) {
+      if (!nodeRRT.parent) nodeRRT.parent = node;
+      array.push(nodeRRT);
+    }
+    // console.log(nodeRRT);
 
-    const nodeRRB = node?.right?.right?.bottom;
-    if (nodeRRB) array.push(nodeRRB);
+    const nodeRRB = board[column - 1]?.[row + 2];
+    if (nodeRRB) {
+      if (!nodeRRB.parent) nodeRRB.parent = node;
+      array.push(nodeRRB);
+    }
+    // console.log(nodeRRB);
 
-    const nodeBBR = node?.bottom?.bottom?.right;
-    if (nodeBBR) array.push(nodeBBR);
+    const nodeBBR = board[column - 2]?.[row + 1];
+    if (nodeBBR) {
+      if (!nodeBBR.parent) nodeBBR.parent = node;
+      array.push(nodeBBR);
+    }
+    // console.log(nodeBBR);
 
-    const nodeBBL = node?.bottom?.bottom?.left;
-    if (nodeBBL) array.push(nodeBBL);
+    const nodeBBL = board[column - 2]?.[row - 1];
+    if (nodeBBL) {
+      if (!nodeBBL.parent) nodeBBL.parent = node;
+      array.push(nodeBBL);
+    }
+    // console.log(nodeBBL);
 
-    const nodeLLB = node?.left?.left?.bottom;
-    if (nodeLLB) array.push(nodeLLB);
+    const nodeLLB = board[column - 1]?.[row - 2];
+    if (nodeLLB) {
+      if (!nodeLLB.parent) nodeLLB.parent = node;
+      array.push(nodeLLB);
+    }
+    // console.log(nodeLLB);
 
-    const nodeLLT = node?.left?.left?.top;
-    if (nodeLLT) array.push(nodeLLT);
+    const nodeLLT = board[column + 1]?.[row - 2];
+    if (nodeLLT) {
+      if (!nodeLLT.parent) nodeLLT.parent = node;
+      array.push(nodeLLT);
+    }
+    // console.log(nodeLLT);
+
+    const newArray = array
+      .map((item) => {
+        const a = visited.includes(item);
+        const b = queue.includes(item);
+        // console.log(a, b);
+
+        if (a || b) {
+          // console.log("SIMILAR", item);
+          return null;
+        }
+        return item;
+      })
+      .filter((item) => item);
+
+    // console.log(newArray);
 
     // console.log(array);
-    return array;
+    return newArray;
   }
 
   function knightMoves(start, end) {
     /* 
     try bfs
-    traverse current.top.top.left
+    traverse using indexes
     handle duplicates in queue
     dont search if visited
 
-    challenges:
-    how to save path
+    sometimes parent is looped, climb up is infinite
+
+
+    - need to have parent/child relationship to backtrack chain
+    - base case recursive that bubbles up parents
     */
 
     const node = board[start[1]][start[0]];
-    const queue = getAvailMoves(node); // returns array of non-null nodes
+    node.parent = "origin";
     const visited = [];
+    let queue = [];
+    queue = queue.concat(getChildren(node, visited, queue));
+
+    console.log("END", end.toString());
 
     while (queue.length !== 0) {
-      const current = queue.shift();
-
       console.log("QUEUE", queue);
       console.log("VISITED", visited);
+      const current = queue.shift();
+
+      if (current.name.toString() === end.toString()) return current;
       console.log("CURRENT", current.name.toString());
 
-      if (current.name.toString() === end.toString()) return "FOUND";
-
-      if (visited.find((node) => current === node)) continue;
-      if (queue.find((node) => current === node)) continue;
-
-      const nodeTTL = current?.top?.top?.left;
-      if (nodeTTL) queue.push(nodeTTL);
-
-      const nodeTTR = current?.top?.top?.right;
-      if (nodeTTR) queue.push(nodeTTR);
-
-      const nodeRRT = current?.right?.right?.top;
-      if (nodeRRT) queue.push(nodeRRT);
-
-      const nodeRRB = current?.right?.right?.bottom;
-      if (nodeRRB) queue.push(nodeRRB);
-
-      const nodeBBR = current?.bottom?.bottom?.right;
-      if (nodeBBR) queue.push(nodeBBR);
-
-      const nodeBBL = current?.bottom?.bottom?.left;
-      if (nodeBBL) queue.push(nodeBBL);
-
-      const nodeLLB = current?.left?.left?.bottom;
-      if (nodeLLB) queue.push(nodeLLB);
-
-      const nodeLLT = current?.left?.left?.top;
-      if (nodeLLT) queue.push(nodeLLT);
-
       visited.push(current);
+
+      queue = queue.concat(getChildren(current, visited, queue));
     }
 
     return "NOT FOUND";
   }
 
-  return { createBoard, connectNodes, knightMoves };
+  return { createBoard, knightMoves };
 }
 const kt = knightTravails();
+console.log(kt.createBoard());
 // console.log(kt.connectNodes());
-console.log(kt.knightMoves([3, 3], [7, 7]));
+console.log(kt.knightMoves([0, 0], [1, 1]));
