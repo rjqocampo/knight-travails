@@ -28,8 +28,8 @@
 
   */
 
-function createNode(name, parent, children) {
-  return { name, parent, children };
+function createNode(name, parent) {
+  return { name, parent };
 }
 
 function knightTravails() {
@@ -131,6 +131,12 @@ function knightTravails() {
     return newArray;
   }
 
+  function makeList(node) {
+    if (node.parent === "origin") return [node.name.toString()];
+
+    return makeList(node.parent).concat(node.name.toString());
+  }
+
   function knightMoves(start, end) {
     /* 
     try bfs
@@ -138,9 +144,7 @@ function knightTravails() {
     handle duplicates in queue
     dont search if visited
 
-    sometimes parent is looped, climb up is infinite
-
-
+    - sometimes parent is looped, climb up is infinite
     - need to have parent/child relationship to backtrack chain
     - base case recursive that bubbles up parents
     */
@@ -158,7 +162,7 @@ function knightTravails() {
       console.log("VISITED", visited);
       const current = queue.shift();
 
-      if (current.name.toString() === end.toString()) return current;
+      if (current.name.toString() === end.toString()) return makeList(current);
       console.log("CURRENT", current.name.toString());
 
       visited.push(current);
@@ -174,4 +178,4 @@ function knightTravails() {
 const kt = knightTravails();
 console.log(kt.createBoard());
 // console.log(kt.connectNodes());
-console.log(kt.knightMoves([0, 0], [1, 1]));
+console.log(kt.knightMoves([3, 3], [4, 3]));
