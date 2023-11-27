@@ -3,7 +3,7 @@
 
   Input: Two arrays, pair of numbers
 
-  Output: Array or List of arrays, pair of numbers
+  Output: Array or Array of arrays, pair of numbers
 
   Example:
   knightMoves([3, 3], [4, 3])
@@ -44,7 +44,7 @@ function knightTravails() {
     for (let i = 0; i < 8; i++) {
       const row = [];
       for (let j = 0; j < 8; j++) {
-        const name = `${j}, ${i}`;
+        const name = [j, i];
 
         row.push(createNode(name));
       }
@@ -82,9 +82,96 @@ function knightTravails() {
 
   connectNodes();
 
-  function knightMoves(start, end) {}
+  function getAvailMoves(node) {
+    const array = [];
 
-  return { createBoard, connectNodes };
+    const nodeTTL = node?.top?.top?.left;
+    if (nodeTTL) array.push(nodeTTL);
+
+    const nodeTTR = node?.top?.top?.right;
+    if (nodeTTR) array.push(nodeTTR);
+
+    const nodeRRT = node?.right?.right?.top;
+    if (nodeRRT) array.push(nodeRRT);
+
+    const nodeRRB = node?.right?.right?.bottom;
+    if (nodeRRB) array.push(nodeRRB);
+
+    const nodeBBR = node?.bottom?.bottom?.right;
+    if (nodeBBR) array.push(nodeBBR);
+
+    const nodeBBL = node?.bottom?.bottom?.left;
+    if (nodeBBL) array.push(nodeBBL);
+
+    const nodeLLB = node?.left?.left?.bottom;
+    if (nodeLLB) array.push(nodeLLB);
+
+    const nodeLLT = node?.left?.left?.top;
+    if (nodeLLT) array.push(nodeLLT);
+
+    // console.log(array);
+    return array;
+  }
+
+  function knightMoves(start, end) {
+    /* 
+    try bfs
+    traverse current.top.top.left
+    handle duplicates in queue
+    dont search if visited
+
+    challenges:
+    how to save path
+    */
+
+    const node = board[start[1]][start[0]];
+    const queue = getAvailMoves(node); // returns array of non-null nodes
+    const visited = [];
+
+    while (queue.length !== 0) {
+      const current = queue.shift();
+
+      console.log("QUEUE", queue);
+      console.log("VISITED", visited);
+      console.log("CURRENT", current.name.toString());
+
+      if (current.name.toString() === end.toString()) return "FOUND";
+
+      if (visited.find((node) => current === node)) continue;
+      if (queue.find((node) => current === node)) continue;
+
+      const nodeTTL = current?.top?.top?.left;
+      if (nodeTTL) queue.push(nodeTTL);
+
+      const nodeTTR = current?.top?.top?.right;
+      if (nodeTTR) queue.push(nodeTTR);
+
+      const nodeRRT = current?.right?.right?.top;
+      if (nodeRRT) queue.push(nodeRRT);
+
+      const nodeRRB = current?.right?.right?.bottom;
+      if (nodeRRB) queue.push(nodeRRB);
+
+      const nodeBBR = current?.bottom?.bottom?.right;
+      if (nodeBBR) queue.push(nodeBBR);
+
+      const nodeBBL = current?.bottom?.bottom?.left;
+      if (nodeBBL) queue.push(nodeBBL);
+
+      const nodeLLB = current?.left?.left?.bottom;
+      if (nodeLLB) queue.push(nodeLLB);
+
+      const nodeLLT = current?.left?.left?.top;
+      if (nodeLLT) queue.push(nodeLLT);
+
+      visited.push(current);
+    }
+
+    return "NOT FOUND";
+  }
+
+  return { createBoard, connectNodes, knightMoves };
 }
 const kt = knightTravails();
-console.log(kt.connectNodes());
+// console.log(kt.connectNodes());
+console.log(kt.knightMoves([3, 3], [7, 7]));
